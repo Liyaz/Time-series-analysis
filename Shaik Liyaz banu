@@ -1,0 +1,46 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+
+# Sample time series data
+data = {
+    'Date': pd.date_range(start='2023-01-01', periods=24, freq='M'),
+    'Sales': [100, 120, 150, 130, 140, 160, 180, 200, 190, 210, 220, 240,
+              250, 270, 280, 300, 310, 320, 330, 350, 370, 380, 400, 420]
+}
+
+# Create a pandas DataFrame
+df = pd.DataFrame(data)
+
+# Set the 'Date' column as the index
+df.set_index('Date', inplace=True)
+
+# Display the first few rows of the DataFrame
+print(df.head())
+
+# Plot the time series data
+plt.figure(figsize=(10, 6))
+plt.plot(df.index, df['Sales'], label='Sales')
+plt.xlabel('Date')
+plt.ylabel('Sales')
+plt.title('Monthly Sales Time Series')
+plt.legend()
+plt.show()
+
+decomposition = sm.tsa.seasonal_decompose(df['Sales'], model='additive')
+fig = decomposition.plot()
+plt.show()
+model = sm.tsa.ARIMA(df['Sales'], order=(1, 1, 1))
+results = model.fit()
+forecast = results.forecast(steps=6)
+forecast_dates = pd.date_range(start='2023-07-31', periods=6, freq='M')
+forecast_df = pd.DataFrame({'Forecasted Sales': forecast}, index=forecast_dates)
+plt.figure(figsize=(10, 6))
+plt.plot(df.index, df['Sales'], label='Actual Sales')
+plt.plot(forecast_df.index, forecast_df['Forecasted Sales'], label='Forecasted Sales', linestyle='--', color='red')
+plt.xlabel('Date')
+plt.ylabel('Sales')
+plt.title('Monthly Sales Time Series Forecast')
+plt.legend()
+plt.show()
